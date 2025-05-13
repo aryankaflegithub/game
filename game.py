@@ -1,36 +1,42 @@
 import sys
 import pygame
 
+from script.utilities import load_image, load_images
+from script.entity import PhysicsEntity
+from script.tile_map import Tilemap
+
 class Game:
     def __init__(self):
         pygame.init()
 
         pygame.display.set_caption('ninja game')
         self.screen = pygame.display.set_mode((700, 700))
+        self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
         
-        self.img = pygame.image.load('data/images/clouds/cloud_1.png')
-        self.img.set_colorkey((0, 0, 0))
-        
-        self.img_pos = [200, 200]
         self.movement = [False, False]
         
-        self.collision_area = pygame.Rect(50, 50, 400, 50)
+        self.assets = {
+            'decor': load_images('tiles/decor'),
+            'grass': load_images('tiles/grass'),
+            'large_decor': load_images('tiles/large_decor'),
+            'stone': load_images('tiles/stone'),
+            'player': load_image('entities/player.png')
+        }
+        
+        self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
+        
+        self.tilemap = Tilemap(self, tile_size=16)
         
     def run(self):
         while True:
-            self.screen.fill((0, 200, 200))
+            self.display.fill((14, 219, 248))
             
-            img_r = pygame.Rect(self.img_pos[0], self.img_pos[1], self.img.get_width(), self.img.get_height())
+            self.tilemap.render(self.display)
             
-            if img_r.colliderect(self.collision_area):
-                pygame.draw.rect(self.screen, (0, 10, 100), self.collision_area)
-            else:
-                pygame.draw.rect(self.screen, (0, 100, 100), self.collision_area)
-
-            self.img_pos[1] += (self.movement[1] - self.movement[0]) * 7
-            self.screen.blit(self.img, self.img_pos)    
+            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+            self.player.render(self.display)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -38,18 +44,21 @@ class Game:
                     sys.exit()
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_LEFT:
                         self.movement[0] = True
-                    if event.key == pygame.K_DOWN:
-                        self.movement[1] = True
+                    if event.key == pygame.K_RIGHT:
+                        self.movement[1] = True     
+                        
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_LEFT:
                         self.movement[0] = False
-                    if event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
                         
             
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(100)
 
 Game().run()
+        
