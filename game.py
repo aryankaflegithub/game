@@ -4,13 +4,14 @@ import pygame
 from script.utilities import load_image, load_images
 from script.entity import PhysicsEntity
 from script.tile_map import Tilemap
+from script.clouds import Clouds
 
 class Game:
     def __init__(self):
         pygame.init()
 
         pygame.display.set_caption('ninja game')
-        self.screen = pygame.display.set_mode((640, 480))
+        self.screen = pygame.display.set_mode((640,480))
         self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
@@ -23,8 +24,11 @@ class Game:
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
             'player': load_image('entities/player.png'),
-            'background': load_image('background.png')
+            'background': load_image('background.png'),
+            'clouds': load_images('clouds'),
         }
+        
+        self.clouds = Clouds(self.assets['clouds'], count=16)
         
         self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
         
@@ -39,6 +43,9 @@ class Game:
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 25
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 25
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+            
+            self.clouds.update()
+            self.clouds.render(self.display, offset=render_scroll)
             
             self.tilemap.render(self.display, offset=render_scroll)
             
