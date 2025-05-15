@@ -10,7 +10,7 @@ class Game:
         pygame.init()
 
         pygame.display.set_caption('ninja game')
-        self.screen = pygame.display.set_mode((700, 700))
+        self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
@@ -22,7 +22,8 @@ class Game:
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
-            'player': load_image('entities/player.png')
+            'player': load_image('entities/player.png'),
+            'background': load_image('background.png')
         }
         
         self.player = PhysicsEntity(self, 'player', (50, 50), (8, 15))
@@ -33,10 +34,10 @@ class Game:
         
     def run(self):
         while True:
-            self.display.fill((14, 219, 248))
+            self.display.blit(self.assets['background'], (0, 0))
             
-            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 50
-            self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 50
+            self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 25
+            self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 25
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
             self.tilemap.render(self.display, offset=render_scroll)
@@ -55,7 +56,7 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True     
                     if event.key == pygame.K_UP:
-                        self.player.velocity[1] = -1
+                        self.player.velocity[1] = -2
                         
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
