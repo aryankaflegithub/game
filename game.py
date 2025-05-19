@@ -1,10 +1,12 @@
 import sys
 import pygame
+import random
 
 from script.utilities import load_image, load_images, Animation
 from script.entity import PhysicsEntity, Player
 from script.tile_map import Tilemap
 from script.clouds import Clouds
+from script.particle import Particle
 
 class Game:
     def __init__(self):
@@ -31,6 +33,7 @@ class Game:
             'player/jump': Animation(load_images('entities/player/jump')),
             'player/slide': Animation(load_images('entities/player/slide')),
             'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
+            'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),        
         }
         
         self.clouds = Clouds(self.assets['clouds'], count=16)
@@ -39,6 +42,11 @@ class Game:
         
         self.tilemap = Tilemap(self, tile_size=16)
         self.tilemap.load('map.json')
+        
+        self.leaf_spawners = []
+        for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
+            self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
+        self.particles = []
         
         self.scroll = [0, 0]
         
@@ -57,6 +65,17 @@ class Game:
             
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
+            
+            for rect in self.leaf_spawners:
+                if random.random() * 20000 < rect.width * rect.height:
+                    pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
+                    self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.2, 0.4], frame=random.randint(0, 20)))
+                    
+            for particle in self.particles.copy():
+                kill = particle.update()
+                particle.render(self.display, offset=render_scroll)
+                if kill:
+                    self.particles.remove(particle)        
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
