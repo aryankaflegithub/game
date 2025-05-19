@@ -1,6 +1,7 @@
 import sys
 import pygame
 import random
+import math
 
 from script.utilities import load_image, load_images, Animation
 from script.entity import PhysicsEntity, Player
@@ -67,13 +68,15 @@ class Game:
             self.player.render(self.display, offset=render_scroll)
             
             for rect in self.leaf_spawners:
-                if random.random() * 20000 < rect.width * rect.height:
+                if random.random() * 30000 < rect.width * rect.height:
                     pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
-                    self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.2, 0.4], frame=random.randint(0, 20)))
+                    self.particles.append(Particle(self, 'leaf', pos, velocity=[math.sin(random.randint(0,1)) * 0.2 ,math.sin(random.randint(1,3)) * 0.4], frame=random.randint(0, 20)))
                     
             for particle in self.particles.copy():
                 kill = particle.update()
                 particle.render(self.display, offset=render_scroll)
+                if particle.type == 'leaf':
+                    particle.pos[0]+= math.sin(particle.animation.frame * 0.05) * 0.25
                 if kill:
                     self.particles.remove(particle)        
             
