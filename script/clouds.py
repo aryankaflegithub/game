@@ -5,7 +5,7 @@ class Cloud:
     def __init__(self, pos, img, speed, depth):
         self.pos = list(pos)
         self.img = img
-        self.speed = speed
+        self.speed = speed * 1.75
         self.depth = depth
     
     def update(self):
