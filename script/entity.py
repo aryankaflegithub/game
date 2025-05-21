@@ -1,5 +1,8 @@
 import pygame
+import math
+import random
 
+from script.particle import Particle
 
 class PhysicsEntity:
     def __init__(self, game, e_type, pos, size):
@@ -75,6 +78,7 @@ class Player(PhysicsEntity):
         self.air_time = 0
         self.jumps = 2
         self.wall_slide = False
+        self.dashing = 0
     
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement=movement)
@@ -107,6 +111,24 @@ class Player(PhysicsEntity):
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
             
+        if abs(self.dashing) in {50, 40}:
+            for i in range(25):
+                angle = random.random() * math.pi * 2
+                speed = random.random() * 0.5 + 0.5
+                pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
+                self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=pvelocity, frame=random.randint(0, 20)))
+        if self.dashing > 0:
+            self.dashing = max(0, self.dashing - 1)
+        if self.dashing < 0:
+            self.dashing = min(0, self.dashing + 1)
+        if abs(self.dashing) > 40:
+            self.velocity[0] = abs(self.dashing) / self.dashing * 10
+            if abs(self.dashing) == 41:
+                self.velocity[0] *= 0.1
+            pvelocity = [abs(self.dashing) / self.dashing * random.random() * 10, 0]
+            self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=pvelocity, frame=random.randint(0, 20)))
+            
+            
     def jump(self):
         if self.wall_slide:
             if self.flip and self.last_movement[0] < 0:
@@ -128,4 +150,13 @@ class Player(PhysicsEntity):
             self.air_time = 5
             return True
             
+    def render(self, surf, offset=(0, 0)):
+        if abs(self.dashing) <= 40:
+            super().render(surf, offset=offset)
             
+    def dash(self):
+        if not self.dashing:
+            if self.flip:
+                self.dashing = -50
+            else:
+                self.dashing = 50               
