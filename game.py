@@ -4,7 +4,7 @@ import random
 import math
 
 from script.utilities import load_image, load_images, Animation
-from script.entity import PhysicsEntity, Player
+from script.entity import PhysicsEntity, Player , Enemy
 from script.tile_map import Tilemap
 from script.clouds import Clouds
 from script.particle import Particle
@@ -55,11 +55,12 @@ class Game:
             self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
         self.particles = []
         
+        self.enemies = []
         for spawner in self.tilemap.extract([('spawners',0),('spawners',1)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
             else:
-                print(spawner['pos'], 'enemy')
+                self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
             
         self.scroll = [0, 0]
         
@@ -78,6 +79,10 @@ class Game:
             
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset=render_scroll)
+            
+            for enemy in self.enemies.copy():
+                enemy.update(self.tilemap, (0, 0))
+                enemy.render(self.display, offset=render_scroll)
             
             for rect in self.leaf_spawners:
                 if random.random() * 30000 < rect.width * rect.height:
