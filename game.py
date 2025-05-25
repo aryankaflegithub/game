@@ -64,6 +64,8 @@ class Game:
             
         self.scroll = [0, 0]
         
+        self.projectiles = []
+        
     def run(self):
         while True:
             self.display.blit(self.assets['background'], (0, 0))
@@ -88,6 +90,19 @@ class Game:
                 if random.random() * 30000 < rect.width * rect.height:
                     pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
                     self.particles.append(Particle(self, 'leaf', pos, velocity=[math.sin(random.randint(0,1)) * 0.2 ,math.sin(random.randint(1,3)) * 0.4], frame=random.randint(0, 20)))
+            
+            for projectile in self.projectiles.copy():
+                projectile[0][0] += projectile[1]
+                projectile[2] += 1
+                img = self.assets['projectile']
+                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+                if self.tilemap.solid_check(projectile[0]):
+                    self.projectiles.remove(projectile)
+                elif projectile[2] > 360:
+                    self.projectiles.remove(projectile)
+                elif abs(self.player.dashing) < 50:
+                    if self.player.rect().collidepoint(projectile[0]):
+                        self.projectiles.remove(projectile)
                     
             for particle in self.particles.copy():
                 kill = particle.update()
