@@ -201,7 +201,7 @@ class Enemy(PhysicsEntity):
         else:
             self.set_action('idle')
             
-        if abs(self.game.player.dashing) >= 50:
+        if abs(self.game.player.dashing) >= 40:
             if self.rect().colliderect(self.game.player.rect()):
                 for i in range(30):
                     angle = random.random() * math.pi * 2

@@ -8,7 +8,7 @@ from script.entity import PhysicsEntity, Player , Enemy
 from script.tile_map import Tilemap
 from script.clouds import Clouds
 from script.particle import Particle
-from spark import Spark
+from script.sparks import Spark
 
 
 class Game:
