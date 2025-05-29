@@ -3,7 +3,7 @@ import math
 import random
 
 from script.particle import Particle
-from spark import Spark
+from script.sparks import Spark
 
 
 class PhysicsEntity:
@@ -87,7 +87,7 @@ class Player(PhysicsEntity):
         
         self.air_time += 1
         
-        if self.air_time > 150:
+        if self.air_time > 100:
             self.game.dead += 1
             
             
