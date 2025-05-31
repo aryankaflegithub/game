@@ -87,7 +87,7 @@ class Player(PhysicsEntity):
         
         self.air_time += 1
         
-        if self.air_time > 100:
+        if self.air_time > 110:
             self.game.dead += 1
             
             
