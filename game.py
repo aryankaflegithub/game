@@ -18,7 +18,8 @@ class Game:
 
         pygame.display.set_caption('ninja game')
         self.screen = pygame.display.set_mode((640, 480))
-        self.display = pygame.Surface((320, 240))
+        self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
+        self.display_2 = pygame.Surface((320, 240))
 
         self.clock = pygame.time.Clock()
         
@@ -79,7 +80,9 @@ class Game:
         
     def run(self):
         while True:
-            self.display.blit(self.assets['background'], (0, 0))
+            
+            self.display.fill((0, 0, 0, 0))
+            self.display_2.blit(self.assets['background'], (0, 0))
             self.screenshake = max(0, self.screenshake - 1)
             
             if not len(self.enemies):
@@ -102,7 +105,7 @@ class Game:
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
             self.clouds.update()
-            self.clouds.render(self.display, offset=render_scroll)
+            self.clouds.render(self.display_2, offset=render_scroll)
             
             self.tilemap.render(self.display, offset=render_scroll)
             
@@ -125,7 +128,7 @@ class Game:
                 projectile[0][0] += projectile[1]
                 projectile[2] += 1
                 img = self.assets['projectile']
-                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+                self.display_2.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
                 if self.tilemap.solid_check(projectile[0]):
                     self.projectiles.remove(projectile)
                     for i in range(4):
@@ -151,11 +154,15 @@ class Game:
                            
             for particle in self.particles.copy():
                 kill = particle.update()
-                particle.render(self.display, offset=render_scroll)
+                particle.render(self.display_2, offset=render_scroll)
                 if particle.type == 'leaf':
                     particle.pos[0]+= math.sin(particle.animation.frame * 0.05) * 0.25
                 if kill:
                     self.particles.remove(particle)        
+            
+            display_mask = pygame.mask.from_surface(self.display)
+            display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
+            self.display_2.blit(display_sillhouette, (2,2))
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -184,8 +191,9 @@ class Game:
                 transition_surf.set_colorkey((255, 255, 255))
                 self.display.blit(transition_surf, (0, 0))
                         
+            self.display_2.blit(self.display, (0, 0))
             screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
-            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), screenshake_offset)
+            self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
             pygame.display.update()
             self.clock.tick(50)
 
